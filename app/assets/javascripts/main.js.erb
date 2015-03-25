@@ -186,7 +186,7 @@ var mainState = {
         circleTop.body.velocity.x = 100;
         circleBot.body.velocity.x = 100;
         circle.body.velocity.x = 100;
-        circleTop.body.collides(lineCollisionGroup, this.after, this);
+        circleTop.body.collides(lineCollisionGroup, this.result, this);
         circleBot.body.collides(lineCollisionGroup, this.result, this);
     },
     drawLine : function(){
