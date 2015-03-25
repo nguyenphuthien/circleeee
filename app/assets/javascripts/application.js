@@ -13,4 +13,6 @@
 //= require jquery
 //= require jquery_ujs
 //= require turbolinks
+//= require phaser.min.js
+//= require main.js.erb	
 //= require_tree .
