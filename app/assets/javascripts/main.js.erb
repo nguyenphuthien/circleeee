@@ -1,14 +1,16 @@
 var game = new Phaser.Game(400, 490, Phaser.AUTO, 'gameDiv');
 
-var score, lineGraphic, bmd, worldBoundsWidth, circleCollisionGroup, lineCollisionGroup, circleTop, circleBot, jump, line, circle, diamond;
+var score, lineGraphic, bmd, worldBoundsWidth, circleCollisionGroup, lineCollisionGroup, circleTop, circleBot, jump, line, circleLeft, circleRight, diamond;
 var startButton;
 var gravity;
 var delay;
-var velocityX, velocityY,lastObjectY,lastObjectX, temp = 0, count =10000;
-
+var velocityX, velocityY,lastObjectY,lastObjectX;
+var count =10000;
+var diamonExist, diamondGot, bannerEarned;
 var preState = {
     preload : function(){
-        game.load.image("circle","<%= asset_path('circle.png') %>");
+        game.load.image("left-circle","<%= asset_path('left-circle.png') %>");
+        game.load.image("right-circle","<%= asset_path('right-circle.png') %>");
         game.load.spritesheet("highScoreButton","<%= asset_path('button.jpg') %>");
         game.load.spritesheet("startButton","<%= asset_path('start-button.jpg') %>");
         game.load.image("diamond","<%= asset_path('diamond.png') %>");
@@ -33,9 +35,19 @@ var preState = {
         circleBot = game.add.sprite(200, 310, bmd);
         game.physics.p2.enable(circleBot);
 
-        circle = game.add.sprite(200,245, 'circle');
-        game.physics.p2.enable(circle);
-        circle.body.static = true;
+        circleLeft = game.add.sprite(187,240, 'left-circle');
+        circleRight = game.add.sprite(210,240, 'right-circle');
+        circleRight.bringToTop();
+        game.physics.p2.enable(circleLeft);
+        game.physics.p2.enable(circleRight);
+        circleLeft.body.static = true;
+        circleRight.body.static = true;
+
+        // circleTop.body.debug = true;
+        // circleBot.body.debug = true;
+        // circleLeft.body.debug = true;
+        // circleRight.body.debug = true;
+
         var mainLine = game.add.sprite(200,250,bmd);
         game.physics.p2.enable(mainLine);
         lastObjectX = mainLine.x*2;
@@ -90,16 +102,7 @@ var afterState = {
         this.timer.start;
         //share facebook
         // var shareButton = game.add.button(250, 350, 'share', this.share , this, 0, 0, 0);
-        for (var i = 0; i < 10; i++) {
-            if (i % 2) {
-                this.bigButton;
-            }else{
-                this.smallButton;
-            }
-            if(i==8){
-                i = 1;
-            }
-        };
+        
 
     },
     bigButton : function(){
@@ -140,9 +143,16 @@ var mainState = {
         circleBot = game.add.sprite(200, 300, bmd);
         game.physics.p2.enable(circleBot);
 
-        circle = game.add.sprite(200,240, 'circle');
-        game.physics.p2.enable(circle);
-        circle.height = 120;
+        circleLeft = game.add.sprite(187,240, 'left-circle');
+        circleRight = game.add.sprite(210,240, 'right-circle');
+        circleRight.bringToTop();
+        game.physics.p2.enable(circleLeft);
+        game.physics.p2.enable(circleRight);
+
+        //diamond
+        diamond = game.add.sprite(350,220, 'diamond');
+        diamonExist = 1; // 1 : true , 0 : false
+        diamondGot = 0;
 
         var mainLine = game.add.sprite(300,250,bmd);
         game.physics.p2.enable(mainLine);
@@ -150,19 +160,22 @@ var mainState = {
         mainLine.body.setRectangle(600,5,0,0);
         mainLine.body.static = true;
 
-        lastObjectX = mainLine.x*2;
+        lastObjectX = mainLine.x * 2;
         lastObjectY = mainLine.y;
+        // tạo các nhóm va chạm và cho các phần tử mong muốn vào các nhóm
         circleCollisionGroup = game.physics.p2.createCollisionGroup();
         lineCollisionGroup = game.physics.p2.createCollisionGroup();
         circleTop.body.setCollisionGroup(circleCollisionGroup);
         circleBot.body.setCollisionGroup(circleCollisionGroup);
         mainLine.body.setCollisionGroup(lineCollisionGroup);
+        // xác nhận cho phép 2 nhóm va chạm nhau
         mainLine.body.collides([lineCollisionGroup, circleCollisionGroup]);
 
         // set camera của game đi theo vòng
         game.camera.follow(circleTop);
         game.camera.follow(circleBot);
-        game.camera.follow(circle);
+        game.camera.follow(circleLeft);
+        game.camera.follow(circleRight);
         //graphic
         lineGraphic = game.add.graphics(0,0);
         lineGraphic.lineStyle(5, 0x000000, 1);
@@ -191,20 +204,29 @@ var mainState = {
     jump : function(){
         circleTop.body.velocity.y = velocityY;
         circleBot.body.velocity.y = velocityY;
-        circle.body.velocity.y = velocityY;
+        circleLeft.body.velocity.y = velocityY;
+        circleRight.body.velocity.y = velocityY;
         score += 1;
         this.label.text = score;
     },
     update : function(){
         circleTop.body.velocity.x = velocityX;
         circleBot.body.velocity.x = velocityX;
-        circle.body.velocity.x = velocityX;
-    
-        if (circleTop.x > count) {
-            diamond.destroy();
-            score += 50;
+        circleLeft.body.velocity.x = velocityX;
+        circleRight.body.velocity.x = velocityX;
+        if ((circleTop.x > diamond.x) && diamonExist == 1) {
+            diamond.exists = false;
+            score += 20;
+            
+            this.label.text = score;
+            diamonExist = 0;
         }
-        console.log(count);
+        if (diamondGot == 1) {
+            console.log("bbb");
+            bannerEarned = 'Earning Spree';
+            this.banner();
+            diamondGot = 0;
+        }
     },
     drawLine : function(){
         // dùng hàm random để tạo điểm ngẫu nhiên vẽ LINE đến
@@ -234,31 +256,40 @@ var mainState = {
         mainLine1.body.setCollisionGroup(lineCollisionGroup);
         mainLine1.body.collides([lineCollisionGroup, circleCollisionGroup]);
         mainLine1.body.static = true;
-        if (score > 7) {
-            if (score % 7 == 0) {
-                diamond = game.add.sprite(x, y - 40, 'diamond');
-                diamond.width = 30;
-                diamond.height = 30;
-                count = diamond.x;
-            }
-        };
+
+        if(diamonExist == 0){
+            diamond = game.add.sprite(x, y - 30, 'diamond');  
+            diamonExist = 1;  
+            diamondGot == 1;       
+        }
         // lưu lại vị trí của điểm mới để bắt đầu vẽ lượt sau
         lastObjectX += Math.cos(radian)* rangeX;
         lastObjectY -= Math.sin(radian)* rangeX;
         // xóa LINE đi khi đã chạy ra ngoài màn hình
         mainLine1.checkWorldBounds = true;
         mainLine1.outOfBoundsKill = true;
-        temp += 1;
-    },
-    ready : function(){
 
+        
+    },
+    banner : function(){
+        console.log("aaa");
+        this.lbBanner = game.add.text(circleTop.x - 50, 150, "", { font:"40px Arial Bold", fill:"black"});
+        this.lbBanner.text = bannerEarned;
+        this.lbBanner.fixedToCamera = true;
+        this.timer = game.time.create();
+        this.timer.add(2000, this.removeBanner, this);
+        this.timer.start();
+    },
+    removeBanner : function(){
+        this.timer.stop();
+        this.lbBanner.exists = false;
     },
     highScore: function(){
 
     },
     delay : function(){
         game.physics.clear();
-        this.lbReact = game.add.text(circle.x -50,90, "0", { font:"40px Arial Bold", fill:"black"});
+        this.lbReact = game.add.text(circleLeft.x - 50, 90, "0", { font:"40px Arial Bold", fill:"black"});
         this.lbReact.text = "OUCH !";
         delay.add(2000, this.result, this);
         delay.start();
@@ -266,7 +297,6 @@ var mainState = {
     result : function(){
         delay.stop();
         game.state.start('after');
-
     }
 };
 
