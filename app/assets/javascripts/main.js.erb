@@ -188,9 +188,9 @@ var mainState = {
         var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
         // tốc độ của các sprite 
-        velocityX = 100;
+        velocityX = 150;
         velocityY = -250;
-        gravity = 500;
+        gravity = 500;  
         game.physics.p2.gravity.y = gravity;
         //score label
         this.label = game.add.text(190,30, "0", { font:"30px Arial", fill:"black"});
@@ -258,7 +258,7 @@ var mainState = {
         mainLine1.body.static = true;
 
         if(diamonExist == 0){
-            diamond = game.add.sprite(x, y - 30, 'diamond');  
+            diamond = game.add.sprite(x, y - 40, 'diamond');  
             diamonExist = 1;  
             diamondGot == 1;       
         }
