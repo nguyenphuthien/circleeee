@@ -185,8 +185,11 @@ var mainState = {
         this.timer = game.time.events.loop(500, this.drawLine, this);
         // delay sau khi va chạm
         delay = game.time.create();
+        //add key to jump
         var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
+        var tap = game.input.onTap.add(this.jump, this);
+
         // tốc độ của các sprite 
         velocityX = 150;
         velocityY = -250;
