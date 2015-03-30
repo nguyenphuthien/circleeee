@@ -7,6 +7,7 @@ var delay;
 var velocityX, velocityY,lastObjectY,lastObjectX;
 var count =10000;
 var diamonExist, diamondGot, bannerEarned;
+var activePoint;
 var preState = {
     preload : function(){
         game.load.image("left-circle","<%= asset_path('left-circle.png') %>");
@@ -130,8 +131,9 @@ var mainState = {
     create : function(){
         game.physics.startSystem(Phaser.Physics.P2JS);
         game.physics.p2.setImpactEvents(true);
-
         game.world.setBounds(0, 0, worldBoundsWidth, 490);
+        activePoint = true;
+
         var bmd = game.add.bitmapData(1,10);
         bmd.ctx.beginPath();
         bmd.ctx.rect(0, 0, 1, 1);
@@ -189,7 +191,6 @@ var mainState = {
         var spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
         var tap = game.input.onTap.add(this.jump, this);
-
         // tốc độ của các sprite 
         velocityX = 150;
         velocityY = -250;
@@ -209,7 +210,9 @@ var mainState = {
         circleBot.body.velocity.y = velocityY;
         circleLeft.body.velocity.y = velocityY;
         circleRight.body.velocity.y = velocityY;
-        score += 1;
+        if (activePoint == true) {
+            score += 1;    
+        };
         this.label.text = score;
     },
     update : function(){
@@ -243,7 +246,7 @@ var mainState = {
         }else if(lastObjectY > 340){
             randomR += 20;
         }
-        //
+
         var bmd = game.add.bitmapData(rangeX,5);
         bmd.ctx.beginPath();
         bmd.ctx.rect(0, 0, rangeX, 5);
@@ -271,7 +274,6 @@ var mainState = {
         // xóa LINE đi khi đã chạy ra ngoài màn hình
         mainLine1.checkWorldBounds = true;
         mainLine1.outOfBoundsKill = true;
-
         
     },
     banner : function(){
@@ -291,6 +293,7 @@ var mainState = {
 
     },
     delay : function(){
+        activePoint = false;
         game.physics.clear();
         this.lbReact = game.add.text(circleLeft.x - 50, 90, "0", { font:"40px Arial Bold", fill:"black"});
         this.lbReact.text = "OUCH !";
