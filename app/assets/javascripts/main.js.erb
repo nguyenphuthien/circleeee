@@ -16,11 +16,11 @@ var preState = {
         game.load.spritesheet("startButton","<%= asset_path('start-button.jpg') %>");
         game.load.image("diamond","<%= asset_path('diamond.png') %>");
         game.stage.backgroundColor ="0xFFE4C4";
-        if (game.scale.isPortrait) {
-            game.width = 320;
-            game.height = 480;
-        };
-        game.scale.forceOrientation(false,true);
+        // if (game.scale.isPortrait) {
+        //     game.width = 320;
+        //     game.height = 480;
+        // };
+        // game.scale.forceOrientation(false,true);
     },
     create : function(){
         game.physics.startSystem(Phaser.Physics.P2JS);
