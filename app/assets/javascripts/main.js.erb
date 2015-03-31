@@ -1,4 +1,6 @@
-var game = new Phaser.Game(400, 490, Phaser.AUTO, 'gameDiv');
+var w = window.innerWidth * window.devicePixelRatio;
+var h = window.innerHeight * window.devicePixelRatio;
+var game = new Phaser.Game(w, h, Phaser.AUTO, 'gameDiv');
 
 var score, lineGraphic, bmd, worldBoundsWidth, circleCollisionGroup, lineCollisionGroup, circleTop, circleBot, jump, line, circleLeft, circleRight, diamond;
 var startButton;
@@ -16,11 +18,11 @@ var preState = {
         game.load.spritesheet("startButton","<%= asset_path('start-button.jpg') %>");
         game.load.image("diamond","<%= asset_path('diamond.png') %>");
         game.stage.backgroundColor ="0xFFE4C4";
-        // if (game.scale.isPortrait) {
-        //     game.width = 320;
-        //     game.height = 480;
-        // };
-        // game.scale.forceOrientation(false,true);
+        if (game.scale.isPortrait) {
+            game.width = 320;
+            game.height = 480;
+        };
+        game.scale.forceOrientation(false,true);
     },
     create : function(){
         game.physics.startSystem(Phaser.Physics.P2JS);
